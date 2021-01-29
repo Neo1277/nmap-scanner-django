@@ -17,6 +17,9 @@ from django.urls import path
 
 from . import views
 
+# In the urls if the action succeded returns to all automatically
+app_name='nmap_scanner'
 urlpatterns = [
-    path('nmap_scanner/', views.index, name='index'),
+    path('nmap_scanner_get/', views.ScannerView.as_view(), name='form_scanner_view'),
+    path('nmap_scanner_post/', views.ScannerView.as_view(), name='ad_scanner'),
 ]
