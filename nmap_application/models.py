@@ -9,7 +9,8 @@ class Host(models.Model):
     )
 
     mac_address = models.CharField(
-        max_length=20
+        max_length=20,
+        null=True
     )
 
     created_on = models.DateTimeField(
@@ -127,19 +128,33 @@ class PortService(models.Model):
     )
 
     name = models.CharField(
-        max_length=255
+        max_length=255,
+        null=True
     )
 
     product = models.CharField(
-        max_length=255
+        max_length=255,
+        null=True
+    )
+
+    extra_info = models.CharField(
+        max_length=255,
+        null=True
+    )
+
+    hostname = models.CharField(
+        max_length=255,
+        null=True
     )
 
     operative_system_type = models.CharField(
-        max_length=255
+        max_length=255,
+        null=True
     )
 
     method = models.CharField(
-        max_length=255
+        max_length=255,
+        null=True
     )
 
     conf = models.PositiveSmallIntegerField()
@@ -161,7 +176,7 @@ class ScannerHistory(models.Model):
         help_text="This field saves the IP, range of IPs or subnet mask that is scanned"
     )
 
-    host = models.ManyToManyField(
+    hosts = models.ManyToManyField(
         Host,
         related_name='host_history'
     )

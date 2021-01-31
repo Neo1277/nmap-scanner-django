@@ -7,7 +7,7 @@ class ScannerForm(forms.Form):
     # Hint: this will need to be changed for use in the ads application :)
     class Meta:
         model = ScannerHistory
-        fields = ['target']  # Picture is manual
+        fields = ['target']
 
     target = forms.CharField(
         required=True,

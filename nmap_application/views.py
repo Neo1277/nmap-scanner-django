@@ -21,140 +21,131 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import View
 
-class ScannerView(View):
-    model = ScannerHistory
-    template_name = "nmap_application/ad_scanner.html"
+class NmapScanner(object):
 
-    #Get Ad and its comments
-    def get(self, request) :
-        scanner_history = ScannerHistory.objects.all()
-        comment_form = ScannerForm()
-        context = {
-            'scanner_history' : scanner_history,
-            'comment_form': comment_form
-        }
-        return render(request, self.template_name, context)
+    def perform_full_scan_and_save(self, target, args="-A"):
 
-    #Get Ad and its comments
-    def post(self, request) :
-        print(request.POST['target'])
-        return redirect(reverse('nmap_scanner:form_scanner_view'))
-
-    def perform_scanning(self, target, args="-A"):
-        """This is not ready yet"""
         nmap = nmap3.Nmap()
         scanner_result = nmap.nmap_version_detection(target, args=args)
 
+        scanner_history = ScannerHistory(
+            target=target
+        )
+
+        scanner_history.save()
+
         IPList = []
+
+        # Iterate over scanner result to get each IP and put them inside a list
+        # This will enable the access to the objects inside each nested dictionary in scanner_result dictionary
+
         for hostIP in scanner_result:
             IPList.append(hostIP)
 
         for IP in IPList:
-            print( "*************" )
-            print( "IP" )
-            print( IP )
-            print( "*************" )
+
+            host_data = {
+                'IP': IP
+            }
+
             """
             Check if key exists in dictionary, source:
             https://stackoverflow.com/a/35485003/9655579
+
+            Check if key is not None, source:
+            https://stackoverflow.com/a/2710949/9655579
             """
+
             if "macaddress" in scanner_result[IP]:
-                print( "*************" )
-                print( "macaddress" )
-                print( scanner_result[IP]["macaddress"] )
-                print( "*************" )
+
+                if scanner_result[IP]["macaddress"] is not None:
+
+                    if "addr" in scanner_result[IP]["macaddress"]:
+                        host_data['mac_address'] = scanner_result[IP]["macaddress"]["addr"]
+
+            host, created = Host.objects.get_or_create(**host_data)
+
+            # Add host to scanner history (many to many relation)
+            scanner_history.hosts.add(host)
 
             if "osmatch" in scanner_result[IP]:
-                for hostIP in scanner_result[IP]["osmatch"]:
-                    print( "name osmatch" )
-                    print( hostIP["name"] )
-                    print( hostIP["accuracy"] )
-                    print( hostIP["line"] )
+                for osmatch in scanner_result[IP]["osmatch"]:
 
-                    if "osclass" in hostIP:
-                        print( "*************" )
-                        print( hostIP["osclass"]["type"] )
-                        print( hostIP["osclass"]["vendor"] )
-                        print( hostIP["osclass"]["osfamily"] )
-                        print( hostIP["osclass"]["osgen"] )
-                        print( hostIP["osclass"]["accuracy"] )
-                        print( "*************" )
+                    operative_system_match, created = OperativeSystemMatch.objects.get_or_create(
+                        name=osmatch["name"],
+                        accuracy=osmatch["accuracy"],
+                        line=osmatch["line"],
+                        host=host
+                    )
+
+                    if "osclass" in osmatch:
+                        operative_system_class, created = OperativeSystemClass.objects.get_or_create(
+                            operative_system_match=operative_system_match,
+                            type=osmatch["osclass"]["type"],
+                            vendor=osmatch["osclass"]["vendor"],
+                            operative_system_family=osmatch["osclass"]["osfamily"],
+                            operative_system_generation=osmatch["osclass"]["osgen"],
+                            accuracy=osmatch["osclass"]["accuracy"]
+                        )
 
             if "ports" in scanner_result[IP]:
-                for hostIP in scanner_result[IP]["ports"]:
-                    print( " ports" )
-                    print( hostIP["protocol"] )
-                    print( hostIP["portid"] )
-                    print( hostIP["state"] )
-                    print( hostIP["reason"] )
-                    print( hostIP["reason_ttl"] )
-                    print( hostIP["service"]["name"] )
-                    print( hostIP["service"]["method"] )
-                    print( hostIP["service"]["conf"] )
-                    print( "*************" )
+                for ports in scanner_result[IP]["ports"]:
 
-"""
-netsh trace start capture=yes
+                    port, created = Port.objects.get_or_create(
+                        protocol=ports["protocol"],
+                        portid=ports["portid"],
+                        state=ports["state"],
+                        reason=ports["reason"],
+                        reason_ttl=ports["reason_ttl"],
+                        host=host
+                    )
 
-netsh trace stop
-"""
+                    if "service" in ports:
+                        port_service_data = {}
 
-"""
-def index(request):
-    nmap = nmap3.Nmap()
-    scanner_result = nmap.nmap_version_detection("192.168.20.*", args="-A")
+                        port_service_data['port'] = port
 
-    print(scanner_result.keys())
-    listaIPs = []
-    for hostIP in scanner_result:
-        listaIPs.append(hostIP)
+                        if "name" in ports["service"]:
+                            port_service_data['name'] = ports["service"]["name"]
 
-    for IP in listaIPs:
-        print( "*************" )
-        print( "IP" )
-        print( IP )
-        print( "*************" )
-        if "macaddress" in scanner_result[IP]:
-            print( "*************" )
-            print( "macaddress" )
-            print( scanner_result[IP]["macaddress"] )
-            print( "*************" )
+                        if "product" in ports["service"]:
+                            port_service_data['product'] = ports["service"]["product"]
 
-        if "osmatch" in scanner_result[IP]:
-            for hostIP in scanner_result[IP]["osmatch"]:
-                print( "name osmatch" )
-                print( hostIP["name"] )
-                print( hostIP["accuracy"] )
-                print( hostIP["line"] )
+                        if "extrainfo" in ports["service"]:
+                            port_service_data['extra_info'] = ports["service"]["extrainfo"]
 
-                if "osclass" in hostIP:
-                    print( "*************" )
-                    print( hostIP["osclass"]["type"] )
-                    print( hostIP["osclass"]["vendor"] )
-                    print( hostIP["osclass"]["osfamily"] )
-                    print( hostIP["osclass"]["osgen"] )
-                    print( hostIP["osclass"]["accuracy"] )
-                    print( "*************" )
+                        if "hostname" in ports["service"]:
+                            port_service_data['hostname'] = ports["service"]["hostname"]
 
-        if "ports" in scanner_result[IP]:
-            for hostIP in scanner_result[IP]["ports"]:
-                print( " ports" )
-                print( hostIP["protocol"] )
-                print( hostIP["portid"] )
-                print( hostIP["state"] )
-                print( hostIP["reason"] )
-                print( hostIP["reason_ttl"] )
-                print( hostIP["service"]["name"] )
-                print( hostIP["service"]["method"] )
-                print( hostIP["service"]["conf"] )
-                print( "*************" )
+                        if "ostype" in ports["service"]:
+                            port_service_data['operative_system_type'] = ports["service"]["ostype"]
 
+                        if "method" in ports["service"]:
+                            port_service_data['method'] = ports["service"]["method"]
 
+                        if "conf" in ports["service"]:
+                            port_service_data['conf'] = ports["service"]["conf"]
 
-    return JsonResponse(scanner_result)
-"""
+                        port_service, created = PortService.objects.get_or_create(
+                            **port_service_data
+                        )
 
-"""
-Check if key exists in dictionary, source:
-https://stackoverflow.com/a/35485003/9655579
-"""
+        return scanner_history
+
+class ScannerView(View, NmapScanner):
+    model = ScannerHistory
+    template_name = "nmap_application/ad_scanner.html"
+
+    def get(self, request) :
+        scanner_history = ScannerHistory.objects.all()
+        scanner_form = ScannerForm()
+        context = {
+            'scanner_history' : scanner_history,
+            'scanner_form': scanner_form
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request) :
+        print(request.POST['target'])
+        self.perform_full_scan_and_save(request.POST['target'])
+        return redirect(reverse('nmap_scanner:form_scanner_view'))

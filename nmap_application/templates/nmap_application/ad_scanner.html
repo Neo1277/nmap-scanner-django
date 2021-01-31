@@ -6,7 +6,7 @@
     {% load crispy_forms_tags %}
     <form method="post" action="{% url 'nmap_scanner:ad_scanner' %}">
         {% csrf_token %}
-        {{ comment_form|crispy }}
+        {{ scanner_form|crispy }}
         <input type="submit" value="Submit" class="btn btn-dark">
     </form>
 </p>
