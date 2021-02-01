@@ -181,6 +181,20 @@ class ScannerHistory(models.Model):
         related_name='host_history'
     )
 
+    # Choices for field type
+    QUICK = 'QS'
+    FULL = 'FS'
+    TYPE_CHOICES = [
+        (QUICK, 'Quick scan'),
+        (FULL, 'Full scan'),
+    ]
+
+    type = models.CharField(
+        max_length=2,
+        choices=TYPE_CHOICES,
+        default=QUICK,
+    )
+
     created_on = models.DateTimeField(
         auto_now_add=True,
         help_text="Date and time when the register was created"
