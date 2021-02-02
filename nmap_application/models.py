@@ -21,6 +21,9 @@ class Host(models.Model):
         help_text="Date and time when the register was updated"
     )
 
+    class Meta:
+        ordering = ['-created_on']
+
 class OperativeSystemMatch(models.Model):
 
     name = models.CharField(
@@ -46,6 +49,9 @@ class OperativeSystemMatch(models.Model):
         auto_now=True,
         help_text="Date and time when the register was updated"
     )
+
+    class Meta:
+        ordering = ['-created_on']
 
 class OperativeSystemClass(models.Model):
 
@@ -117,6 +123,9 @@ class Port(models.Model):
         auto_now=True,
         help_text="Date and time when the register was updated"
     )
+
+    class Meta:
+        ordering = ['-created_on']
 
 class PortService(models.Model):
 

@@ -18,8 +18,8 @@ class ScannerForm(forms.Form):
 
     target = forms.CharField(
         required=True,
-        max_length=500,
-        min_length=3,
+        max_length=20,
+        min_length=7,
         strip=True
     )
 

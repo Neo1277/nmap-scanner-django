@@ -91,7 +91,7 @@ class OperativeSystemMatchListView(ListView):
         host = Host.objects.get(pk=host_id)
 
         """
-        Denormalizing tabes
+        Denormalizing tables
 
         INNER JOIN, source: 
         https://stackoverflow.com/a/21360352/9655579
@@ -106,6 +106,7 @@ class OperativeSystemMatchListView(ListView):
             'name',
             'accuracy',
             'line',
+            'created_on',
             'os_match_class__type',
             'os_match_class__vendor',
             'os_match_class__operative_system_family',
@@ -116,6 +117,7 @@ class OperativeSystemMatchListView(ListView):
             os_name=F('name'),
             os_accuracy=F('accuracy'),
             os_line=F('line'),
+            os_created_on=F('created_on'),
             os_match_class_type=F('os_match_class__type'),
             os_match_class_vendor=F('os_match_class__vendor'),
             os_match_class_operative_system_family=F('os_match_class__operative_system_family'),
@@ -130,6 +132,68 @@ class OperativeSystemMatchListView(ListView):
         }
 
         return render(request, self.template_name, context)
+
+
+class PortListView(ListView):
+
+    model = Port
+    template_name = "nmap_application/scanner_history_host_ports.html"
+
+    def get(self, request, scanner_history_id, host_id):
+
+        host = Host.objects.get(pk=host_id)
+
+        """
+        Denormalizing tables
+
+        INNER JOIN, source: 
+        https://stackoverflow.com/a/21360352/9655579
+
+        Set alias for fields, source: 
+        https://stackoverflow.com/a/46471483/9655579
+        """
+        ports = Port.objects.filter(
+            host=host_id
+        ).values(
+            'id',
+            'protocol',
+            'portid',
+            'state',
+            'reason',
+            'reason_ttl',
+            'created_on',
+            'port_service__name',
+            'port_service__product',
+            'port_service__extra_info',
+            'port_service__hostname',
+            'port_service__operative_system_type',
+            'port_service__method',
+            'port_service__conf'
+        ).annotate(
+            port_id=F('id'),
+            port_name=F('protocol'),
+            port_accuracy=F('portid'),
+            port_state=F('state'),
+            port_reason=F('reason'),
+            port_reason_ttl=F('reason_ttl'),
+            port_created_on=F('created_on'),
+            port_service_name=F('port_service__name'),
+            port_service_product=F('port_service__product'),
+            port_service_extra_info=F('port_service__extra_info'),
+            port_service_hostname=F('port_service__hostname'),
+            port_service_operative_system_type=F('port_service__operative_system_type'),
+            port_service_method=F('port_service__method'),
+            port_service_conf=F('port_service__conf'),
+        )
+
+        context = {
+            'ports' : ports,
+            'host': host,
+            'scanner_history_id': scanner_history_id
+        }
+
+        return render(request, self.template_name, context)
+
 
 # Useful link: base commands
 # https://stackoverflow.com/a/3037137/9655579

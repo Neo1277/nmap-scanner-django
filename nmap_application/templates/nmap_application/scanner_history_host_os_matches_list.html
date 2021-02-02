@@ -5,6 +5,15 @@
 <p>
   <a href="{% url 'network_scanner:host_list' scanner_history_id %}" class="btn btn-dark">Back</a>
 </p>
+<h5>
+  <strong>Host</strong>
+</h5>
+<p>
+  <strong>IP: </strong> {{ host.IP }}
+</p>
+<p>
+  <strong>Mac address: </strong> {{ host.mac_address }}
+</p>
 <table class="table">
   <thead>
     <tr>
@@ -12,6 +21,7 @@
       <th scope="col">Name</th>
       <th scope="col">Accuracy</th>
       <th scope="col">Line</th>
+      <th scope="col">Created on</th>
       <th scope="col">Type</th>
       <th scope="col">Vendor</th>
       <th scope="col">OS family</th>
@@ -26,6 +36,7 @@
       <td>{{ operative_system_match.os_name }}</td>
       <td>{{ operative_system_match.os_accuracy }}</td>
       <td>{{ operative_system_match.os_line }}</td>
+      <td>{{ operative_system_match.os_created_on }}</td>
       <td>{{ operative_system_match.os_match_class_type }}</td>
       <td>{{ operative_system_match.os_match_class_vendor }}</td>
       <td>{{ operative_system_match.os_match_class_operative_system_family }}</td>
