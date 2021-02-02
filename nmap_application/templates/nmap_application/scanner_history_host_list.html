@@ -11,6 +11,9 @@
       <th scope="col">#</th>
       <th scope="col">IP</th>
       <th scope="col">Mac address</th>
+      {% if scanner_history.type  == 'FS' %}
+      <th scope="col"></th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -19,6 +22,11 @@
       <th scope="row">{{ host.id }}</th>
       <td>{{ host.IP }}</td>
       <td>{{ host.mac_address }}</td>
+      {% if scanner_history.type  == 'FS' %}
+      <td>
+        <a href="{% url 'network_scanner:os_matches_list' scanner_history.id host.id %}" class="btn btn-dark">View os matches</a>
+      </td>
+      {% endif %}
     </tr>
   {% endfor %}
   </tbody>

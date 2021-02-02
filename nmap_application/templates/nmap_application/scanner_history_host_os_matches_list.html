@@ -1,0 +1,39 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+
+<p>
+  <a href="{% url 'network_scanner:host_list' scanner_history_id %}" class="btn btn-dark">Back</a>
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Accuracy</th>
+      <th scope="col">Line</th>
+      <th scope="col">Type</th>
+      <th scope="col">Vendor</th>
+      <th scope="col">OS family</th>
+      <th scope="col">OS generation</th>
+      <th scope="col">OS accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for operative_system_match in operative_system_matches %}
+    <tr>
+      <th scope="row">{{ operative_system_match.os_id }}</th>
+      <td>{{ operative_system_match.os_name }}</td>
+      <td>{{ operative_system_match.os_accuracy }}</td>
+      <td>{{ operative_system_match.os_line }}</td>
+      <td>{{ operative_system_match.os_match_class_type }}</td>
+      <td>{{ operative_system_match.os_match_class_vendor }}</td>
+      <td>{{ operative_system_match.os_match_class_operative_system_family }}</td>
+      <td>{{ operative_system_match.os_match_class_operative_system_generation }}</td>
+      <td>{{ operative_system_match.os_match_class_accuracy }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

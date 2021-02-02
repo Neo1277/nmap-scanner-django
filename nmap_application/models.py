@@ -53,6 +53,7 @@ class OperativeSystemClass(models.Model):
         OperativeSystemMatch,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name='os_match_class'
     )
 
     type = models.CharField(
@@ -123,6 +124,7 @@ class PortService(models.Model):
         Port,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name='port_service'
     )
 
     name = models.CharField(
