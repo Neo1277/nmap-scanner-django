@@ -1,0 +1,20 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+
+<p>
+    {% load crispy_forms_tags %}
+    <form method="post" action="{% url 'network_scanner:post_form_scanner' %}">
+        {% csrf_token %}
+        {{ scanner_form|crispy }}
+        <input type="submit" value="Submit" class="btn btn-dark">
+    </form>
+</p>
+<p>
+    <a href="{% url 'network_scanner:scanner_type' 'QS' %}">See quick scan history</a>
+</p>
+<p>
+    <a href="{% url 'network_scanner:scanner_type' 'FS' %}">See full scan history</a>
+</p>
+
+{% endblock %}

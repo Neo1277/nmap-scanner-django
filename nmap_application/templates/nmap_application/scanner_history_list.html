@@ -1,0 +1,30 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+<p>
+  <a href="{% url 'network_scanner:form_scanner_view' %}" class="btn btn-dark">Back</a>
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Target</th>
+      <th scope="col">Created on</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for scanner in scanner_history %}
+    <tr>
+      <th scope="row">{{ scanner.id }}</th>
+      <td>{{ scanner.target }}</td>
+      <td>{{ scanner.created_on }}</td>
+      <td>
+        <a href="{% url 'network_scanner:host_list' scanner.id %}" class="btn btn-dark">View hosts</a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -19,7 +19,8 @@ class NmapScanner(object):
         scanner_result = nmap.nmap_version_detection(target, args=args)
 
         scanner_history = ScannerHistory(
-            target=target
+            target=target,
+            type='FS'
         )
 
         scanner_history.save()
@@ -69,13 +70,28 @@ class NmapScanner(object):
                     )
 
                     if "osclass" in osmatch:
+
+                        operative_system_class_data = {}
+
+                        operative_system_class_data['operative_system_match'] = operative_system_match
+
+                        if "type" in osmatch["osclass"]:
+                            operative_system_class_data['type'] = osmatch["osclass"]["type"]
+
+                        if "vendor" in osmatch["osclass"]:
+                            operative_system_class_data['vendor'] = osmatch["osclass"]["vendor"]
+
+                        if "osfamily" in osmatch["osclass"]:
+                            operative_system_class_data['operative_system_family'] = osmatch["osclass"]["osfamily"]
+
+                        if "osgen" in osmatch["osclass"]:
+                            operative_system_class_data['operative_system_generation'] = osmatch["osclass"]["osgen"]
+
+                        if "accuracy" in osmatch["osclass"]:
+                            operative_system_class_data['accuracy'] = osmatch["osclass"]["accuracy"]
+
                         operative_system_class, created = OperativeSystemClass.objects.get_or_create(
-                            operative_system_match=operative_system_match,
-                            type=osmatch["osclass"]["type"],
-                            vendor=osmatch["osclass"]["vendor"],
-                            operative_system_family=osmatch["osclass"]["osfamily"],
-                            operative_system_generation=osmatch["osclass"]["osgen"],
-                            accuracy=osmatch["osclass"]["accuracy"]
+                            **operative_system_class_data
                         )
 
             if "ports" in scanner_result[IP]:

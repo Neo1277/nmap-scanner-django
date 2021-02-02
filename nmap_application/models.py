@@ -4,9 +4,7 @@ from django.db import models
 
 class Host(models.Model):
 
-    IP = models.CharField(
-        max_length=20
-    )
+    IP = models.GenericIPAddressField()
 
     mac_address = models.CharField(
         max_length=20,
@@ -171,10 +169,7 @@ class PortService(models.Model):
 
 class ScannerHistory(models.Model):
 
-    target = models.CharField(
-        max_length=30,
-        help_text="This field saves the IP, range of IPs or subnet mask that is scanned"
-    )
+    target = models.GenericIPAddressField()
 
     hosts = models.ManyToManyField(
         Host,
@@ -204,3 +199,6 @@ class ScannerHistory(models.Model):
         auto_now=True,
         help_text="Date and time when the register was updated"
     )
+
+    class Meta:
+        ordering = ['-id']

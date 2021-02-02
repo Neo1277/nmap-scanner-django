@@ -1,0 +1,27 @@
+{% extends "base_bootstrap.html" %}
+
+{% block content %}
+
+<p>
+  <a href="{% url 'network_scanner:scanner_type' scanner_history.type %}" class="btn btn-dark">Back</a>
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">IP</th>
+      <th scope="col">Mac address</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for host in hosts %}
+    <tr>
+      <th scope="row">{{ host.id }}</th>
+      <td>{{ host.IP }}</td>
+      <td>{{ host.mac_address }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
