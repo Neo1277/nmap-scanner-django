@@ -144,48 +144,14 @@ class ScapyScanner(object):
     def __init__(self):
         self.target = None
 
-    """This method returns data extracted from arping scan in a List"""
-    def perform_quick_scan_and_extract(self):
-
+    """This method save the data returned from arping scan """
+    def save_quick_scan(self):
+        """
+        Extract data from arping response, source:
+        https://stackoverflow.com/a/32805335/9655579
+        """
         # Perform scan (scapy)
         answered, unanswered = arping(self.target)
-
-        data = []
-
-        for row in answered:
-            row_string = str(row)
-
-            # Extract data from row separated by character '|'
-            columns = row_string.split('|')
-
-            """
-            Get string after specific substring, source
-            https://stackoverflow.com/a/12572399/9655579
-            """
-            key_before_ip = "pdst="
-            ip_column = columns[1]
-            ip = ip_column[ip_column.index(key_before_ip) + len(key_before_ip):]
-
-            key_before_mac = "src="
-            mac_column = columns[2]
-
-            mac = mac_column[mac_column.index(key_before_mac) + len(key_before_mac):]
-            mac = mac.split('type')
-            mac = mac[0].strip()
-
-            data.append(
-                {
-                    'IP':ip,
-                    'mac_address':mac
-                }
-            )
-
-        return data
-
-    """This method save the data returned from perform_quick_scan_and_extract() method """
-    def save_quick_scan(self):
-
-        data = self.perform_quick_scan_and_extract()
 
         scanner_history = ScannerHistory(
             target=self.target
@@ -193,10 +159,16 @@ class ScapyScanner(object):
 
         scanner_history.save()
 
-        for row in data:
+        for row in answered:
+
+            original_packet, answer = row
+
+            IP = answer.hwsrc
+            mac_address = answer.psrc
+
             host, created = Host.objects.get_or_create(
-                IP=row['IP'],
-                mac_address=row['mac_address']
+                IP=IP,
+                mac_address=mac_address
             )
 
             # Add host to scanner history (many to many relation)
