@@ -97,7 +97,7 @@ class NmapScanner(object):
             if "ports" in scanner_result[IP]:
                 for ports in scanner_result[IP]["ports"]:
 
-                    port, created = Port.objects.get_or_create(
+                    port = Port(
                         protocol=ports["protocol"],
                         portid=ports["portid"],
                         state=ports["state"],
@@ -105,6 +105,8 @@ class NmapScanner(object):
                         reason_ttl=ports["reason_ttl"],
                         host=host
                     )
+
+                    port.save()
 
                     if "service" in ports:
                         port_service_data = {}
@@ -132,9 +134,11 @@ class NmapScanner(object):
                         if "conf" in ports["service"]:
                             port_service_data['conf'] = ports["service"]["conf"]
 
-                        port_service, created = PortService.objects.get_or_create(
+                        port_service = PortService(
                             **port_service_data
                         )
+
+                        port_service.save()
 
         return scanner_history
 
