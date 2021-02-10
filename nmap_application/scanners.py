@@ -167,8 +167,8 @@ class ScapyScanner(object):
 
             original_packet, answer = row
 
-            IP = answer.hwsrc
-            mac_address = answer.psrc
+            IP = answer.psrc
+            mac_address = answer.hwsrc
 
             host, created = Host.objects.get_or_create(
                 IP=IP,
