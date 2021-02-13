@@ -25,13 +25,10 @@ class NmapScanner(object):
 
         scanner_history.save()
 
-        IPList = []
-
-        # Iterate over scanner result to get each IP and put them inside a list
+        # Put IPs inside a list
         # This will enable the access to the objects inside each nested dictionary in scanner_result dictionary
 
-        for hostIP in scanner_result:
-            IPList.append(hostIP)
+        IPList = list(scanner_result)
 
         for IP in IPList:
 
