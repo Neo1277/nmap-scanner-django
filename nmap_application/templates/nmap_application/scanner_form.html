@@ -4,10 +4,10 @@
 
 <p>
     {% load crispy_forms_tags %}
-    <form method="post" action="{% url 'network_scanner:post_form_scanner' %}">
+    <form method="post" action="{% url 'network_scanner:post_form_scanner' %}" id="example-form">
         {% csrf_token %}
         {{ scanner_form|crispy }}
-        <input type="submit" value="Submit" class="btn btn-dark">
+        <input type="submit" value="Submit" class="btn btn-dark" id="query-button">
     </form>
 </p>
 <p>
@@ -17,4 +17,33 @@
     <a href="{% url 'network_scanner:scanner_type' 'FS' %}">See full scan history</a>
 </p>
 
+<script type="text/javascript">
+    $( document ).ready(function() {
+      $('#query-button').click(function (event) {
+        event.preventDefault();
+        var example_form = '#example-form';
+
+        $.ajax({
+            url: "{% url 'network_scanner:post_form_scanner' %}",
+            type: "POST",
+            data: $(example_form).serialize(),
+            datatype: 'json',
+            header: {'X-CSRFToken': '{% csrf_token %}'},
+            success: function(data) {
+                if (!(data['success'])) {
+                    // Here we replace the form, for the
+                    alert("Error");
+                }
+                else {
+                    // Here you can show the user a success message or do whatever you need
+                    alert("Success");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.responseText);
+            }
+        });
+      });
+     });
+  </script>
 {% endblock %}

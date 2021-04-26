@@ -22,6 +22,9 @@ from .scanners import NmapScanner, ScapyScanner
 
 from django.db.models import F
 
+from django.http import HttpResponse
+
+import json
 class ScannerView(View, NmapScanner, ScapyScanner):
 
     model = ScannerHistory
@@ -41,14 +44,18 @@ class ScannerView(View, NmapScanner, ScapyScanner):
 
         target = request.POST['target']
         type = request.POST['type']
+        response = {}
 
         if type == 'QS':
             self.target = target
             self.save_quick_scan()
+            response['success'] = True
         else:
             self.perform_full_scan_and_save(request.POST['target'])
+            response['success'] = True
 
-        return redirect(reverse('network_scanner:form_scanner_view'))
+        return HttpResponse(json.dumps(response), content_type="application/json")
+        # return redirect(reverse('network_scanner:form_scanner_view'))
 
 class ScannerHistoryListView(ListView):
 
