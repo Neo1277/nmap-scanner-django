@@ -1,13 +1,15 @@
 {% extends "base_bootstrap.html" %}
 
 {% block content %}
+<br />
+<div id="spinner"></div>
 
 <p>
     {% load crispy_forms_tags %}
-    <form method="post" action="{% url 'network_scanner:post_form_scanner' %}" id="example-form">
+    <form method="post" action="{% url 'network_scanner:post_form_scanner' %}" id="scanner_form">
         {% csrf_token %}
         {{ scanner_form|crispy }}
-        <input type="submit" value="Submit" class="btn btn-dark" id="query-button">
+        <input type="submit" value="Submit" class="btn btn-dark" id="scanner_button">
     </form>
 </p>
 <p>
@@ -16,28 +18,36 @@
 <p>
     <a href="{% url 'network_scanner:scanner_type' 'FS' %}">See full scan history</a>
 </p>
-
+<!--https://stackoverflow.com/questions/1960240/jquery-ajax-submit-form-->
+<!--https://django-crispy-forms.readthedocs.io/en/latest/crispy_tag_forms.html#ajax-validation-recipe-->
 <script type="text/javascript">
     $( document ).ready(function() {
-      $('#query-button').click(function (event) {
+      $('#scanner_button').click(function (event) {
         event.preventDefault();
-        var example_form = '#example-form';
+        var scanner_form = '#scanner_form';
 
         $.ajax({
             url: "{% url 'network_scanner:post_form_scanner' %}",
             type: "POST",
-            data: $(example_form).serialize(),
+            data: $(scanner_form).serialize(),
             datatype: 'json',
             header: {'X-CSRFToken': '{% csrf_token %}'},
+            beforeSend: function () {
+                // Set spinner from https://getbootstrap.com/docs/4.4/components/spinners/
+                $('#spinner').html('<div class="d-flex align-items-center"><strong>Scanning, please wait, this will take a while...</strong><div class="spinner-border ml-auto" role="status" aria-hidden="true" style="width: 3rem; height: 3rem;"></div></div>')
+            },
             success: function(data) {
                 if (!(data['success'])) {
                     // Here we replace the form, for the
-                    alert("Error");
+                    alert("An error has occurred");
                 }
                 else {
                     // Here you can show the user a success message or do whatever you need
-                    alert("Success");
+                    alert("The network has been scanned successfully");
                 }
+            },
+            complete: function () {
+                $('#spinner').empty(); //Remove child elements
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log(xhr.responseText);
